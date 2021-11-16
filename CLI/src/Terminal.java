@@ -47,8 +47,21 @@ public class Terminal {
                 File f = new File("C:\\" + str);
 
                 if(f.exists()) {
+
+
                     File x = new File("C:\\" + i);
-                    x.mkdir();
+                    if(x.exists()){
+
+                        System.out.println("Cannot create directory " + i + ": File exists");
+
+                    }
+                    else {
+
+                        x.mkdir();
+                    }
+
+
+
                 }
                 else{
 
