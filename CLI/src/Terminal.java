@@ -1,7 +1,7 @@
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,6 +23,7 @@ public class Terminal {
     public Terminal(){
         parser = new Parser();
     }
+
     public void pwd(){
 
             System.out.println(PATH);
@@ -71,48 +72,87 @@ public class Terminal {
             }
                 else if(!i.contains("/")) {
 
-                    File f = new File("C:\\"+PATH+"/" + i);
+                File f = new File("C:\\"+PATH+"/" + i);
+
+                if(f.exists()){
+
+                    System.out.println("Cannot create directory " + i + ": File exists");
+
+                }
+                else {
+
+
                     f.mkdir();
+                }
+
+
                 }
             }
         }
 
     public void rmdir(String[] s) {
         File [] paths;
+        File f = new File("C:\\"+PATH);
+        paths = f.listFiles(File::isDirectory);
+
 
 
         if(s[0].equals("*")){
 
-            File f = new File("C:\\"+PATH);
-            paths = f.listFiles();
+
 
             for(File path:paths) {
 
                 if(path.list().length == 0){
                     path.delete();
                 }
+                else{
+                    System.out.println("rmdir: failed to remove " + path +": Directory not empty" );
+                }
             }
 
 
         }
-        else{
-            File f = new File("C:\\"+s[0]);
-            if(f.exists()) {
+        else if (s[0].contains("/")) {
+            f = new File("C:\\" + s[0]);
+            if (f.exists()) {
                 paths = f.listFiles();
 
-                    if (f.list().length == 0) {
-                        f.delete();
-                    }
+                if (f.list().length == 0) {
+                    f.delete();
+                }
+                else{
+                    System.out.println("rmdir: failed to remove " + s[0] +": Directory not empty" );
+                }
 
-            }
-            else {
+            } else{
+
 
                 System.out.println("rmdir: failed to remove "+s[0]+": No such file or directory");
             }
         }
+        else if(!s[0].contains("/"))
+        {
 
+            f = new File("C:\\" +PATH + "/" +s[0]);
+            if(f.exists()) {
+                paths = f.listFiles();
 
+                if (f.list().length == 0) {
+                    f.delete();
+                }
+                else{
+                    System.out.println("rmdir: failed to remove " + s[0] +": Directory not empty" );
+                }
+
+            }
+        }
+        else {
+
+            System.out.println("rmdir: failed to remove "+s[0]+": No such file or directory");
+        }
     }
+
 
 
     public void cd(String[] s){
@@ -126,22 +166,38 @@ public class Terminal {
                 if(!PATH.equals("/"))
                     PATH = PATH.substring(0,PATH.lastIndexOf("/"));
         }
-           else{
+           else {
+
+                if (!s[0].contains("/")) {
+                    File f = new File("C:\\" + PATH + "/" + s[0]);
 
 
-
-                File f = new File("C:\\"+PATH+"/" +s[0]);
-
-
-                    if(f.exists()){
+                    if (f.exists()) {
 
                         PATH = PATH.concat("/").concat(s[0]);
                     }
 
 
-                if(!f.exists())
-                    System.out.println(PATH + " :No such file or directory");
+                    if (!f.exists())
+                        System.out.println(s[0] + " :No such file or directory");
 
+                } else {
+
+
+
+                    File f = new File("C:\\" + s[0]);
+
+
+                    if (f.exists()) {
+
+                        PATH = "/" +s[0] ;
+                    }
+
+
+                    if (!f.exists())
+                        System.out.println(s[0] + " :No such file or directory");
+
+                }
             }
 
 
@@ -150,15 +206,15 @@ public class Terminal {
         }
 
     public void ls(){
-        String[] paths;
+        String[] files;
 
         File f = new File("C:\\"+PATH);
-        paths = f.list();
+        files = f.list();
 
 
-        for (String path:paths) {
+        for (String file:files) {
 
-            System.out.print(path + " ");
+            System.out.print(file + " ");
 
         }
         System.out.println("\r");
@@ -166,15 +222,15 @@ public class Terminal {
     }
 
     public void ls_r(){
-        String[] paths;
+        String[] files;
 
         File f = new File("C:\\"+PATH);
-        paths = f.list();
+        files = f.list();
 
 
-        for (int i = paths.length-1 ; i >= 0 ; i--) {
+        for (int i = files.length-1 ; i >= 0 ; i--) {
 
-            System.out.print(paths[i] + " ");
+            System.out.print(files[i] + " ");
 
         }
         System.out.println("\r");
@@ -189,15 +245,47 @@ public class Terminal {
 
     public void rm(String[] s){
 
-        File f = new File("C:\\"+PATH +"/" + s[0]);
-        if(f.exists()) {
+        String[] paths;
 
-                f.delete();
+        //to delete file without knowing its extension
+
+        File f = new File("C:\\"+PATH);
+        paths = f.list();
+        boolean exist = false;
+        File x = new File("C:\\"+PATH + s[0]);
+
+        for (String path:paths) {
+
+            if(path.contains(".")) {
+
+
+                if (s[0].equals(path.substring(0, path.lastIndexOf(".")))) {
+                    exist = true;
+                    x = new File("C:\\" + PATH + "/" + path);
+                }
+
+            }
+        }
+
+
+
+        if(exist) {
+
+            if(x.isDirectory()){
+
+                System.out.println("rm: cannot remove "+s[0]+": Is a directory");
+            }
+            else {
+
+                x.delete();
+            }
+
+
 
         }
         else {
 
-            System.out.println("rmdir: failed to remove "+s[0]+": No such file or directory");
+            System.out.println("rm: failed to remove "+s[0]+": No such file or directory");
         }
 
 
