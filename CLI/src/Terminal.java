@@ -1,7 +1,7 @@
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.Scanner;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -237,47 +237,73 @@ public class Terminal {
 
     }
 
-    public void touch(String[] s){
+    public void touch(String[] s) throws IOException {
 
-    mkdir(s);
+        if(s[0].contains("/")) {
+            String str = s[0];
+            str = str.substring(0,str.lastIndexOf("/")+1);
+            File f = new File("C:\\" + str);
+
+            if(f.exists()) {
+
+
+                File x = new File("C:\\" + s[0]);
+                if(x.exists()){
+
+                    System.out.println("Cannot create directory " + s[0] + ": File exists");
+
+                }
+                else {
+
+                    x.createNewFile();
+                }
+
+
+
+            }
+            else{
+
+                System.out.println(str + " :No such file or directory");
+            }
+
+        }
+        else if(!s[0].contains("/")) {
+
+
+
+            File f = new File("C:\\"+PATH+"/" + s[0] );
+
+            if(f.exists()){
+
+                System.out.println("Cannot create directory " + s[0] + ": File exists");
+
+            }
+            else {
+
+
+                f.createNewFile();
+            }
+
+
+        }
 
     }
 
+
     public void rm(String[] s){
 
-        String[] paths;
-
-        //to delete file without knowing its extension
-
-        File f = new File("C:\\"+PATH);
-        paths = f.list();
-        boolean exist = false;
-        File x = new File("C:\\"+PATH + s[0]);
-
-        for (String path:paths) {
-
-            if(path.contains(".")) {
 
 
-                if (s[0].equals(path.substring(0, path.lastIndexOf(".")))) {
-                    exist = true;
-                    x = new File("C:\\" + PATH + "/" + path);
-                }
+        File f = new File("C:\\"+PATH +"/" + s[0]);
+        if(f.exists()) {
 
-            }
-        }
-
-
-
-        if(exist) {
-
-            if(x.isDirectory()){
+            if(f.isDirectory()){
 
                 System.out.println("rm: cannot remove "+s[0]+": Is a directory");
             }
             else {
 
-                x.delete();
+                f.delete();
             }
 
 
@@ -417,7 +443,7 @@ public class Terminal {
 
 //This method will choose the suitable command method to be called
 
-    public void chooseCommandAction(){
+    public void chooseCommandAction() throws IOException {
 
         String s = parser.getCommandName();
 
@@ -465,7 +491,7 @@ public class Terminal {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         Scanner input = new Scanner(System.in);
         String command = input.nextLine();
